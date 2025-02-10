@@ -1,0 +1,18 @@
+jobs:
+- name: energy-usage
+  tasks:
+  - tap-pixlet--energy-usage target-tidbyt
+- name: energy-usage--webp
+  tasks:
+  - tap-pixlet--energy-usage target-webp
+
+plugins:
+  extractors:
+  - name: tap-pixlet--energy-usage
+    inherit_from: tap-pixlet
+    pip_url: git+https://github.com/DouweM/tap-pixlet.git -r apps/energy-usage/requirements.txt
+    config:
+      path: apps/energy-usage
+      app_config:
+        base_url: HOME_ASSISTANT_BASE_URL
+        token: HOME_ASSISTANT_TOKEN
