@@ -14,5 +14,5 @@ plugins:
     config:
       path: apps/energy-usage
       app_config:
-        base_url: HOME_ASSISTANT_BASE_URL
-        token: HOME_ASSISTANT_TOKEN
+        base_url: $HOME_ASSISTANT_BASE_URL
+        token: $HOME_ASSISTANT_TOKEN
