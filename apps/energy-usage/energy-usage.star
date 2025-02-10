@@ -3,7 +3,9 @@ load("pixlib/const.star", "const")
 load("./client.star", "client")
 
 def main(config):
-    resp = client.get_response()
+    BASE_URL = config.get("base_url")
+    TOKEN = config.get("token")
+    resp = client.get_response(BASE_URL, TOKEN)
     usage = int(resp["usage"])  # Ensure usage is an integer
 
     # Ensure production is an integer
