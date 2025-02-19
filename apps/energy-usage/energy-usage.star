@@ -7,40 +7,40 @@ def main(config):
     TOKEN = config.get("token")
     resp = client.get_response(BASE_URL, TOKEN)
 
-    # Ensure usage is an integer
-    usage = int(resp["usage"]) 
-
-    # Ensure production is an integer
+    # Always Render Usage, Production, and Net Energy
+    usage = int(resp["usage"])
     production = int(resp["production"]) if int(resp["production"]) > 0 else 0
-    
     net = production - usage
-
-    # Determine color for net value
     net_color = "#FF0000" if net < 0 else "#00FF00"
 
-    on_rooms = []
-    for name, value in resp.items():
-        if name in ["usage", "production"]:
-            continue
-        if value == "on":
-            on_rooms.append(str(name))
-    on_rooms_string = ", ".join(on_rooms)
+    # Collect rooms that are on
+    on_rooms = [str(name) for name, value in resp.items() if name not in ["usage", "production"] and value == "on"]
+
+    # Choose font size based on whether marquee is present
+    font_size = "CG-pixel-3x5-mono" if on_rooms else "CG-pixel-4x5-mono"
+
+    render_children = [
+        render.Text(content="Usage: %sw" % usage, font=font_size, color="#68B8ED", offset=0),
+        render.Text(content="Solar: %sw" % production, font=font_size, color="#F0CD42", offset=0),
+        render.Text(content="Net: %sw" % net, font=font_size, color=net_color, offset=0),
+    ]
+
+    # Add the marquee if there are rooms with lights on
+    if on_rooms:
+        render_children.append(
+            render.Marquee(
+                width=64,
+                child=render.Text(content="Lights are on in %s" % ", ".join(on_rooms), font=font_size, offset=0),
+                offset_start=0,
+                offset_end=0,
+            )
+        )
 
     return render.Root(
         child=render.Column(
             expanded=True,
             main_align="space_around",
-            cross_align="start",  # Align text to the left
-            children=[
-                render.Text(content="Usage: %sw" % usage, font="CG-pixel-3x5-mono", color="#68B8ED", offset=0),
-                render.Text(content="Solar: %sw" % production, font="CG-pixel-3x5-mono", color="#F0CD42", offset=0),
-                render.Text(content="Net: %sw" % net, font="CG-pixel-3x5-mono", color=net_color, offset=0),
-                render.Marquee(
-                    width=64,
-                    child=render.Text(content="Lights are on in %s" % on_rooms_string, font="CG-pixel-3x5-mono", offset=0),
-                    offset_start=0,
-                    offset_end=0,
-                )
-            ]
+            cross_align="start",
+            children=render_children
         )
     )
