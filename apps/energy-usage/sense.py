@@ -8,6 +8,19 @@ input = json.loads(sys.argv[1])
 BASE_URL = input["base_url"]
 TOKEN = input["token"]
 
+ENTITIES = {
+    "usage":"sensor.energy_usage",
+    "production":"sensor.energy_production",
+    "Garage":"group.garage_lights",
+    "Backyard":"group.backyard_lights",
+    "Family Room":"group.family_room_lights",
+    "Loren's Room":"group.lorens_room_lights",
+    "Loren's Bathroom":"group.lorens_bathroom_lights",
+    "Ryan's Room":"group.ryans_room_lights",
+    "Ryan's Bathroom":"group.ryans_bathroom_lights",
+    "Jordan's Room":"group.jordans_room_lights",
+}
+
 class HomeAssistantRESTClient:
     def __init__(self, base_url, token):
         self.base_url = f"{base_url}/api"
@@ -47,17 +60,13 @@ class HomeAssistantRESTClient:
         endpoint = f"states/{entity_id}"
         return self._get(endpoint)
 
-def get_energy_states():
+def get_states():
     c = HomeAssistantRESTClient(BASE_URL, TOKEN)
     
-    usage = c.get_entity("sensor.energy_usage")
+    output = {}
+    for name, entity in ENTITIES.items():
+        output[name] = c.get_entity(entity)["state"]
+    
+    return output
 
-    production = c.get_entity("sensor.energy_production")
-
-    return usage["state"], production["state"]
-
-usage, production = get_energy_states()
-
-output = {"usage": usage, "production": production}
-
-print(json.dumps(output))
+print(json.dumps(get_states()))
